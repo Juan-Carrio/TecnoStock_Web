@@ -1,3 +1,8 @@
+<?php
+    require_once 'config/conexion.php';
+    $resultado = $db->query("SELECT `nombre`,`precio_publico`,`cantidad`, `ventas_mes`, `proveedor`, `plazo_reposicion` FROM `productos`");
+?>
+
 <!doctype html>
 <html lang="es">
   <head>
@@ -28,16 +33,24 @@
             <div class="col-md-3">
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="card-title">Productos</h3>
-                        <h4> X </h4>
+                        <h3 class="card-title text-center">Productos</h3>
+                        <?php
+                            $productos = $db->query("SELECT COUNT(*) FROM productos");
+                            $productos = $productos->fetch_assoc()['COUNT(*)'];
+                        ?>
+                        <h4 class="text-center"> <?php echo $productos; ?> </h4>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="card">
-                    <div class="card-body">
-                        <h3 class="card-title">Unidades</h3>
-                        <h4> X </h4>
+                    <div class="card-body ">
+                        <h3 class="card-title text-center">Unidades</h3>
+                        <?php 
+                            $unidades = $db->query("SELECT SUM(cantidad) AS total_unidades FROM productos");
+                            $unidades = $unidades->fetch_assoc()['total_unidades'];
+                        ?>
+                        <h4 class="text-center"> <?php echo $unidades; ?> </h4>
                     </div>
                 </div>
             </div>
@@ -45,16 +58,20 @@
             <div class="col-md-3">
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="card-title">Valor total (ARS)</h3>
-                        <h4> $ X </h4>
+                        <h3 class="card-title text-center">Total (Publico)</h3>
+                        <?php
+                            $valor_total = $db->query("SELECT SUM(precio_publico * cantidad) AS valor_total FROM productos");
+                            $valor_total = $valor_total->fetch_assoc()['valor_total'];
+                        ?>
+                        <h4 class="text-center"> $ <?php echo number_format($valor_total, 0, ',', '.'); ?> </h4>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="card-title">Stock bajo</h3>
-                        <h4> X </h4>
+                        <h3 class="card-title text-center">Stock bajo</h3>
+                        <h4 class="text-center"> X </h4>
                     </div>
                 </div>
             </div>

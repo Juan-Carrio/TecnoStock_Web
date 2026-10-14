@@ -1,3 +1,8 @@
+<?php
+    require_once 'config/conexion.php';
+    $resultado = $db->query("SELECT `nombre`,`precio_publico` , `costo` ,`cantidad`, `ventas_mes`, `proveedor`, `plazo_reposicion` FROM `productos`");
+?>
+
 <!doctype html>
 <html lang="es">
   <head>
@@ -41,26 +46,28 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td class="text-center">Producto 1</td>
-                            <td class="text-center">Precio 1</td>
-                            <td class="text-center">Costo 1</td>
-                            <td class="text-center">Stock 1</td>
-                            <td class="text-center">Ventas 1</td>
-                            <td class="text-center">Proveedor 1</td>
-                            <td class="text-center">Plazo 1</td>
+                        <?php while($producto = $resultado->fetch_assoc()){ ?>
+                            <tr>
+                                <td class="text-center"><?php echo $producto['nombre']; ?></td>
+                                <td class="text-center"><?php echo $producto['precio_publico']; ?></td>
+                                <td class="text-center"><?php echo $producto['costo']; ?></td>
+                                <td class="text-center"><?php echo $producto['cantidad']; ?></td>
+                                <td class="text-center"><?php echo $producto['ventas_mes']; ?></td>
+                                <td class="text-center"><?php echo $producto['proveedor']; ?></td>
+                                <td class="text-center"><?php echo $producto['plazo_reposicion']; ?></td>
 
-                            <td>
-                                <div  class="d-flex justify-content-center gap-2">
-                                    <button class="btn btn-outline-success btn-sm" type="button">
-                                        <i class="bi bi-pencil"></i> Editar
-                                    </button>
-                                    <button class="btn btn-outline-danger btn-sm" type="button">
-                                        <i class="bi bi-trash"></i> Eliminar
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
+                                <td>
+                                    <div  class="d-flex justify-content-center gap-2">
+                                        <button class="btn btn-outline-success btn-sm" type="button">
+                                            <i class="bi bi-pencil"></i> Editar
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm" type="button">
+                                            <i class="bi bi-trash"></i> Eliminar
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php } ?>
                     </tbody>
                 </table>
             </div>

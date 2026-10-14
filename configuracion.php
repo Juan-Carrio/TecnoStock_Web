@@ -106,7 +106,7 @@
                                     </tr>
                                     <tr>
                                         <td>Base de Datos</td>
-                                        <td>TecnoStoreDB</td>
+                                        <td>TecnoStockDB</td>
                                     </tr>
                                 </tbody>
                             </table>
