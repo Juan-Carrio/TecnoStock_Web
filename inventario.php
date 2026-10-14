@@ -1,6 +1,15 @@
 <?php
     require_once 'config/conexion.php';
-    $resultado = $db->query("SELECT `nombre`,`precio_publico` , `costo` ,`cantidad`, `ventas_mes`, `proveedor`, `plazo_reposicion` FROM `productos`");
+    $resultado = $db->query("SELECT `producto_id`,`nombre`,`precio_publico` , `costo` ,`cantidad`, `ventas_mes`, `proveedor`, `plazo_reposicion` FROM `productos`");
+    
+    if($_SERVER["REQUEST_METHOD"] == "POST"){
+        $producto_id = filter_input(INPUT_POST,"producto_id", FILTER_VALIDATE_INT); //Valido el ID por si modifican el valor oculto del formulario
+        $eliminar = $db->prepare("DELETE FROM `productos` WHERE `producto_id` = ?");
+        $eliminar->bind_param("i",$producto_id);
+        $eliminar->execute();
+        header("Location: inventario.php");
+        exit;
+    }
 ?>
 
 <!doctype html>
@@ -48,9 +57,10 @@
                     <tbody>
                         <?php while($producto = $resultado->fetch_assoc()){ ?>
                             <tr>
+                                <?php $producto_id = $producto["producto_id"] ?>
                                 <td class="text-center"><?php echo $producto['nombre']; ?></td>
-                                <td class="text-center"><?php echo $producto['precio_publico']; ?></td>
-                                <td class="text-center"><?php echo $producto['costo']; ?></td>
+                                <td class="text-center">$<?php echo number_format($producto["precio_publico"], 0, ',', '.'); ?></td>
+                                <td class="text-center">$<?php echo number_format($producto["costo"], 0, ',', '.'); ?></td>
                                 <td class="text-center"><?php echo $producto['cantidad']; ?></td>
                                 <td class="text-center"><?php echo $producto['ventas_mes']; ?></td>
                                 <td class="text-center"><?php echo $producto['proveedor']; ?></td>
@@ -61,9 +71,13 @@
                                         <button class="btn btn-outline-success btn-sm" type="button">
                                             <i class="bi bi-pencil"></i> Editar
                                         </button>
-                                        <button class="btn btn-outline-danger btn-sm" type="button">
-                                            <i class="bi bi-trash"></i> Eliminar
-                                        </button>
+                                        <form method="post" onsubmit="return confirm('¿Eliminar este producto?')">
+                                            <input type="hidden" name="producto_id" value="<?php echo $producto_id; ?>">
+                                            <button class="btn btn-outline-danger btn-sm" type="submit">
+                                                <i class="bi bi-trash"></i> Eliminar
+                                            </button>
+                                        </form>
+                                        
                                     </div>
                                 </td>
                             </tr>

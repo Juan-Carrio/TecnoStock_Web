@@ -1,3 +1,30 @@
+<?php
+  session_start();
+  require_once "config/conexion.php";
+  if($_SERVER["REQUEST_METHOD"] == "POST"){
+    $nombre = $_POST["nombre_prod"];
+    $precio = $_POST["precio_prod"];
+    $costo = $_POST["costo_prod"];
+    $cantidad = $_POST["cantidad_prod"];
+    $ventas =  $_POST["ventas_mes"];
+    $proveedor = $_POST["proveedor"];
+    $plazo = $_POST["plazo_reposicion"];
+    $resultado = $db->prepare("INSERT INTO `productos`(`nombre`, `cantidad`, `precio_publico`, `costo`, `ventas_mes`, `proveedor`, `plazo_reposicion`)
+      VALUES (?,?,?,?,?,?,?)");
+    $resultado->bind_param("siddisi", $nombre, $cantidad, $precio, $costo, $ventas, $proveedor, $plazo);
+    //TODO: mas adelante voy a incorporar una funcion para validar que el producto no exista antes de guardarlo.
+    //para evitar registros duplicados
+
+    //s string d decimal i intdi
+    //bind_param asocia los parametros y prepare prepara la ejecucion sql
+
+    $resultado->execute();
+    $_SESSION["mensaje"] = "¡Producto agregado correctamente!";
+    header("Location: agregar_producto.php");
+    exit;
+  }
+  
+?>
 <!doctype html>
 <html lang="es">
   <head>
@@ -16,27 +43,55 @@
 
     <div class="container mt-4">
       <div class="card">
-        <div class="card-body">
-          <form>
-            <h1>Agregar producto</h1>
-            <div class="mb-3">
-              <label for="Nombre_prod" class="form-label">Nombre</label>
-              <input type="text" name="Nombre_prod" required class="form-control" id="Nombre_prod" placeholder="Ej: Mouse">
-            </div>
-            <div class="mb-3">
-              <label for="Precio_prod" class="form-label">Precio</label>
-              <input type="number" name="Precio_prod" required min="0" step="0.01" class="form-control" id="Precio_prod" placeholder="Precio en pesos ARS">
-            </div>
-            <div class="mb-3">
-              <label for="Cantidad_prod" class="form-label">Cantidad</label>
-              <input type="number" name="Cantidad_prod" required min="0" step="1" class="form-control" id="Cantidad_prod" placeholder="Unidades disponibles">
-            </div>
-            <button type="submit" class="btn btn-success">Agregar producto</button>
-          </form>
+        <div class="card-body">     
+            <h2>Agregar producto</h2>
+            <form method="post">
+              <div class="row g-3">              
+                  <div class="col-md-6">
+                    <label for="nombre_prod" class="form-label">Nombre</label>
+                    <input type="text" name="nombre_prod" required class="form-control" id="Nombre_prod" placeholder="Ej: Mouse">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="precio_prod" class="form-label">Precio</label>
+                    <input type="number" name="precio_prod" required min="0" step="0.01" class="form-control" id="Precio_prod" placeholder="Precio en pesos ARS">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="costo_prod" class="form-label">Costo</label>
+                    <input type="number" name="costo_prod" required min="0" step="0.01" class="form-control" id="Costo_prod" placeholder="Costo en pesos ARS">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="cantidad_prod" class="form-label">Cantidad</label>
+                    <input type="number" name="cantidad_prod" required min="0" step="1" class="form-control" id="Cantidad_prod" placeholder="Unidades disponibles">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="ventas_mes" class="form-label">Ventas por Mes</label>
+                    <input type="number" name="ventas_mes" required min="0" step="1" class="form-control" id="ventas_mes" placeholder="Ventas en Dias">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="proveedor" class="form-label">Proveedor</label>
+                    <input type="text" name="proveedor" required class="form-control" id="proveedor" placeholder="Nombre del proveedor">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="plazo_reposicion" class="form-label">Plazo reposición</label>
+                    <input type="number" name="plazo_reposicion" required min="0" step="1" class="form-control" id="plazo_reposicion" placeholder="Días">
+                  </div>
+                  <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-success">Agregar producto</button>
+                  </div> 
+                  
+                  <?php  if(isset($_SESSION["mensaje"])){   ?>
+                    <div class="alert alert-success text-center" role="alert">
+                      <i class="bi bi-check-circle"></i> Producto guardado correctamente!
+                    </div>   
+                    
+                  <?php unset($_SESSION["mensaje"]); } ?>    
+                 
+                       
+              </div>
+            </form>
         </div>
       </div>
-    </div>
-   
+    </div>   
 
 
 
