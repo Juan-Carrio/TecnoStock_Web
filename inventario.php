@@ -11,25 +11,6 @@
 
     <title>Inventario</title>
 
-    <style>
-
-
-        .columna-producto {
-            width: 35%;
-        }
-
-        .columna-precio {
-            width: 20%;
-        }
-
-        .columna-stock {
-            width: 15%;
-        }
-
-        .columna-acciones {
-            width: 30%;
-        }
-    </style>
   </head>
   <body>
 
@@ -46,20 +27,29 @@
         
         <div class="card">
             <div class="card-body">
-                <table class="table table-borderless table-hover align-middle">
+                <table class="table table-hover align-middle">
                     <thead>
                         <tr>
-                            <th class="columna-producto">Producto</th>
-                            <th class="columna-precio">Precio (ARS)</th>
-                            <th class="columna-stock">Stock</th>
-                            <th class="columna-acciones text-center">Acciones</th>
+                            <th class="text-center">Producto</th>
+                            <th class="text-center">Precio (ARS)</th>
+                            <th class="text-center">Costo (ARS)</th>
+                            <th class="text-center">Stock</th>
+                            <th class="text-center">Ventas Mes</th>
+                            <th class="text-center">Proveedor</th>
+                            <th class="text-center">Plazo reposicion</th>
+                            <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Producto 1</td>
-                            <td>Precio 1</td>
-                            <td>Stock 1</td>
+                            <td class="text-center">Producto 1</td>
+                            <td class="text-center">Precio 1</td>
+                            <td class="text-center">Costo 1</td>
+                            <td class="text-center">Stock 1</td>
+                            <td class="text-center">Ventas 1</td>
+                            <td class="text-center">Proveedor 1</td>
+                            <td class="text-center">Plazo 1</td>
+
                             <td>
                                 <div  class="d-flex justify-content-center gap-2">
                                     <button class="btn btn-outline-success btn-sm" type="button">
