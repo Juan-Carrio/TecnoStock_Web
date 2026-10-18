@@ -12,7 +12,7 @@
 </head>
 
 <body>
-    <?php include 'includes/navbar.php'; ?>
+    <?php include "includes/navbar.php"; ?>
 
     <div class="container mt-4">
         <div class="card mb-3">

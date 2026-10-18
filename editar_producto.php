@@ -2,7 +2,6 @@
     require_once("config/conexion.php");
     $cant = 0;
     
-    
     if(isset($_GET["id"])) {
       $id = filter_input(INPUT_GET,"id", FILTER_VALIDATE_INT);
 

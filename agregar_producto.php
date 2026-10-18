@@ -2,13 +2,28 @@
   session_start();
   require_once "config/conexion.php";
   if($_SERVER["REQUEST_METHOD"] == "POST"){
-    $nombre = $_POST["nombre_prod"];
-    $precio = $_POST["precio_prod"];
-    $costo = $_POST["costo_prod"];
-    $cantidad = $_POST["cantidad_prod"];
-    $ventas =  $_POST["ventas_mes"];
-    $proveedor = $_POST["proveedor"];
-    $plazo = $_POST["plazo_reposicion"];
+    $nombre = trim($_POST["nombre_prod"] ?? "");
+    $precio = filter_input(INPUT_POST, "precio_prod", FILTER_VALIDATE_FLOAT);
+    $costo = filter_input(INPUT_POST, "costo_prod", FILTER_VALIDATE_FLOAT);
+    $cantidad = filter_input(INPUT_POST, "cantidad_prod", FILTER_VALIDATE_INT);
+    $ventas = filter_input(INPUT_POST, "ventas_mes", FILTER_VALIDATE_INT);
+    $proveedor = trim($_POST["proveedor"] ?? "");
+    $plazo = filter_input(INPUT_POST, "plazo_reposicion", FILTER_VALIDATE_INT);
+
+    if (
+    $precio === false || $precio === null || $precio < 0 ||
+    $costo === false || $costo === null || $costo < 0 ||
+    $cantidad === false || $cantidad === null || $cantidad < 0 ||
+    $ventas === false || $ventas === null || $ventas < 0 ||
+    $plazo === false || $plazo === null || $plazo < 0
+    ) {
+        die("Datos numéricos inválidos");
+    }
+
+    if ($nombre === "" || $proveedor === "") {
+        die("El nombre y el proveedor son obligatorios");
+    }
+
     $resultado = $db->prepare("INSERT INTO `productos`(`nombre`, `cantidad`, `precio_publico`, `costo`, `ventas_mes`, `proveedor`, `plazo_reposicion`)
       VALUES (?,?,?,?,?,?,?)");
     $resultado->bind_param("siddisi", $nombre, $cantidad, $precio, $costo, $ventas, $proveedor, $plazo);
@@ -18,10 +33,13 @@
     //s string d decimal i intdi
     //bind_param asocia los parametros y prepare prepara la ejecucion sql
 
-    $resultado->execute();
-    $_SESSION["mensaje"] = "¡Producto agregado correctamente!";
-    header("Location: agregar_producto.php");
-    exit;
+    if ($resultado->execute()) {
+      $_SESSION["mensaje"] = "¡Producto agregado correctamente!";
+      header("Location: agregar_producto.php");
+      exit;
+    } else {
+      die("No se pudo guardar el producto");
+    }
   }
   
 ?>
@@ -39,7 +57,7 @@
   </head>
   <body>
     
-    <?php include 'includes/navbar.php'; ?>
+    <?php include "includes/navbar.php"; ?>
 
     <div class="container mt-4">
       <div class="card">

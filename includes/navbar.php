@@ -16,13 +16,14 @@
                 <a class="nav-link" href="configuracion.php"><i class="bi bi-gear"></i> Configuracion</a>
                 </li>
             </ul>
-            <form class="d-flex">
+            <form class="d-flex" action="inventario.php" method="get">
                 <div class="input-group">
                     <span class="input-group-text bg-white border-end-0">
                         <i class="bi bi-search text-muted"></i>
                     </span>
-                    <input class="form-control border-start-0 ps-0" type="search" placeholder="Buscar producto" aria-label="Nombre Producto">
+                    <input class="form-control border-start-0 ps-0" type="search" placeholder="Buscar producto" aria-label="Nombre Producto" name="buscar">
                     <button class="btn btn-outline-success" type="submit">Buscar</button>
+                    
                 </div>
             </form>
             </div>

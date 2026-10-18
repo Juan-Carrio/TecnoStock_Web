@@ -1,5 +1,5 @@
 <?php
-    require_once 'config/conexion.php';
+    require_once "config/conexion.php";
     $resultado = $db->query("SELECT `nombre`,`precio_publico`,`cantidad`, `ventas_mes`, `proveedor`, `plazo_reposicion` FROM `productos`");
 ?>
 
@@ -23,7 +23,7 @@
   </head>
   <body>
 
-    <?php include 'includes/navbar.php'; ?>
+    <?php include "includes/navbar.php"; ?>
 
     <br>
 
@@ -36,7 +36,7 @@
                         <h3 class="card-title text-center">Productos</h3>
                         <?php
                             $productos = $db->query("SELECT COUNT(*) FROM productos");
-                            $productos = $productos->fetch_assoc()['COUNT(*)'];
+                            $productos = $productos->fetch_assoc()["COUNT(*)"];
                         ?>
                         <h4 class="text-center"> <?php echo $productos; ?> </h4>
                     </div>
@@ -48,7 +48,7 @@
                         <h3 class="card-title text-center">Unidades</h3>
                         <?php 
                             $unidades = $db->query("SELECT SUM(cantidad) AS total_unidades FROM productos");
-                            $unidades = $unidades->fetch_assoc()['total_unidades'];
+                            $unidades = $unidades->fetch_assoc()["total_unidades"];
                         ?>
                         <h4 class="text-center"> <?php echo $unidades; ?> </h4>
                     </div>
@@ -61,9 +61,9 @@
                         <h3 class="card-title text-center">Total (Publico)</h3>
                         <?php
                             $valor_total = $db->query("SELECT SUM(precio_publico * cantidad) AS valor_total FROM productos");
-                            $valor_total = $valor_total->fetch_assoc()['valor_total'];
+                            $valor_total = $valor_total->fetch_assoc()["valor_total"];
                         ?>
-                        <h4 class="text-center"> $ <?php echo number_format($valor_total, 0, ',', '.'); ?> </h4>
+                        <h4 class="text-center"> $ <?php echo number_format($valor_total, 0, ",", "."); ?> </h4>
                     </div>
                 </div>
             </div>

@@ -1,19 +1,33 @@
 <?php
-    require_once 'config/conexion.php';
-    $resultado = $db->query("SELECT `producto_id`,`nombre`,`precio_publico` , `costo` ,`cantidad`, `ventas_mes`, `proveedor`, `plazo_reposicion` FROM `productos`");
-    
-    if($_SERVER["REQUEST_METHOD"] == "POST"){
-        $producto_id = filter_input(INPUT_POST,"producto_id", FILTER_VALIDATE_INT); //Valido el ID por si modifican el valor oculto del formulario
+    include_once("config/conexion.php");
+    $buscar = trim($_GET["buscar"] ?? "");
+    $cant = 0;
+
+    if ($buscar !== "") {
+        $consulta = $db->prepare("SELECT * FROM productos WHERE nombre LIKE ?");
+        $textoBusqueda = "%" . $buscar . "%";
+        $consulta->bind_param("s", $textoBusqueda);
+        $consulta->execute();
+        $resultado = $consulta->get_result();
+        $cant = $resultado->num_rows;
+    } else {
+        $resultado = $db->query("SELECT * FROM productos");
+        $cant = $resultado->num_rows;
+    }
+
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        $producto_id = filter_input(INPUT_POST, "producto_id", FILTER_VALIDATE_INT);
+
         if ($producto_id === false || $producto_id === null || $producto_id <= 0) {
             die("ID inválido");
-        }else{
-            $eliminar = $db->prepare("DELETE FROM `productos` WHERE `producto_id` = ?");
-            $eliminar->bind_param("i",$producto_id);
+        } else {
+            $eliminar = $db->prepare("DELETE FROM productos WHERE producto_id = ?");
+            $eliminar->bind_param("i", $producto_id);
             $eliminar->execute();
+
             header("Location: inventario.php");
-            exit; 
+            exit;
         }
-        
     }
 ?>
 
@@ -22,8 +36,6 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
@@ -32,19 +44,25 @@
   </head>
   <body>
 
-    <?php include 'includes/navbar.php'; ?>
+    <?php include "includes/navbar.php"; ?>
 
     <div class="container">
         <div class="d-flex justify-content-between align-items-center">
             <h1>Inventario</h1>
 
-            <a href="agregar_producto.php" class="btn btn-secondary">
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="agregar_producto.php" class="btn btn-secondary">
                 Agregar Producto
-            </a>
+                </a>
+                <a href="inventario.php" class="btn btn-secondary">
+                    Recargar
+                </a>
+            </div>
+            
         </div>
 
         <?php
-            if($_GET["estado"] === "editado"){
+            if(isset($_GET["estado"]) && $_GET["estado"] === "editado"){
 
         ?>
             <div class="alert alert-success" role="alert">
@@ -56,6 +74,7 @@
         
         <div class="card">
             <div class="card-body">
+                <?php if($cant > 0){  ?>
                 <table class="table table-hover align-middle">
                     <thead>
                         <tr>
@@ -73,18 +92,18 @@
                         <?php while($producto = $resultado->fetch_assoc()){ ?>
                             <tr>
                                 <?php $producto_id = $producto["producto_id"] ?>
-                                <td class="text-center"><?php echo $producto['nombre']; ?></td>
-                                <td class="text-center">$<?php echo number_format($producto["precio_publico"], 0, ',', '.'); ?></td>
-                                <td class="text-center">$<?php echo number_format($producto["costo"], 0, ',', '.'); ?></td>
-                                <td class="text-center"><?php echo $producto['cantidad']; ?></td>
-                                <td class="text-center"><?php echo $producto['ventas_mes']; ?></td>
-                                <td class="text-center"><?php echo $producto['proveedor']; ?></td>
-                                <td class="text-center"><?php echo $producto['plazo_reposicion']; ?></td>
+                                <td class="text-center"><?= htmlspecialchars($producto["nombre"], ENT_QUOTES, "UTF-8") ?></td>
+                                <td class="text-center">$<?php echo number_format($producto["precio_publico"], 0, ",", "."); ?></td>
+                                <td class="text-center">$<?php echo number_format($producto["costo"], 0, ",", "."); ?></td>
+                                <td class="text-center"><?php echo $producto["cantidad"]; ?></td>
+                                <td class="text-center"><?php echo $producto["ventas_mes"]; ?></td>
+                                <td class="text-center"><?= htmlspecialchars($producto["proveedor"], ENT_QUOTES, "UTF-8") ?></td>
+                                <td class="text-center"><?php echo $producto["plazo_reposicion"]; ?></td>
 
                                 <td>
                                     <div  class="d-flex justify-content-center gap-2">
                                         <form action="editar_producto.php" method="get">
-                                            <button class="btn btn-outline-success btn-sm" name="id" value="<?= $producto['producto_id'] ?>" type="submit">
+                                            <button class="btn btn-outline-success btn-sm" name="id" value="<?= $producto["producto_id"] ?>" type="submit">
                                                 <i class="bi bi-pencil"></i> Editar
                                             </button>
                                         </form>
@@ -99,17 +118,19 @@
                                     </div>
                                 </td>
                             </tr>
-                        <?php } ?>
-                    </tbody>
-                </table>
+                    <?php } ?>
+                            </tbody>
+                        </table>
+                    <?php } else{ ?>                 
+                    <div class="alert alert-danger" role="alert">
+                        Producto no encontrado
+                    </div>
+                    <?php } ?>
             </div>
         </div>
                 
     </div>
    
-
-
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
   </body>
 </html>
