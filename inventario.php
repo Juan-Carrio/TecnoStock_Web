@@ -4,18 +4,22 @@
     
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         $producto_id = filter_input(INPUT_POST,"producto_id", FILTER_VALIDATE_INT); //Valido el ID por si modifican el valor oculto del formulario
-        $eliminar = $db->prepare("DELETE FROM `productos` WHERE `producto_id` = ?");
-        $eliminar->bind_param("i",$producto_id);
-        $eliminar->execute();
-        header("Location: inventario.php");
-        exit;
+        if ($producto_id === false || $producto_id === null || $producto_id <= 0) {
+            die("ID inválido");
+        }else{
+            $eliminar = $db->prepare("DELETE FROM `productos` WHERE `producto_id` = ?");
+            $eliminar->bind_param("i",$producto_id);
+            $eliminar->execute();
+            header("Location: inventario.php");
+            exit; 
+        }
+        
     }
 ?>
 
 <!doctype html>
 <html lang="es">
   <head>
-    <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -34,10 +38,21 @@
         <div class="d-flex justify-content-between align-items-center">
             <h1>Inventario</h1>
 
-            <button type="button" class="btn btn-secondary">
+            <a href="agregar_producto.php" class="btn btn-secondary">
                 Agregar Producto
-            </button>
+            </a>
         </div>
+
+        <?php
+            if($_GET["estado"] === "editado"){
+
+        ?>
+            <div class="alert alert-success" role="alert">
+                Producto Editado!
+            </div>
+        <?php
+             }
+        ?>
         
         <div class="card">
             <div class="card-body">
@@ -68,9 +83,12 @@
 
                                 <td>
                                     <div  class="d-flex justify-content-center gap-2">
-                                        <button class="btn btn-outline-success btn-sm" type="button">
-                                            <i class="bi bi-pencil"></i> Editar
-                                        </button>
+                                        <form action="editar_producto.php" method="get">
+                                            <button class="btn btn-outline-success btn-sm" name="id" value="<?= $producto['producto_id'] ?>" type="submit">
+                                                <i class="bi bi-pencil"></i> Editar
+                                            </button>
+                                        </form>
+                                        
                                         <form method="post" onsubmit="return confirm('¿Eliminar este producto?')">
                                             <input type="hidden" name="producto_id" value="<?php echo $producto_id; ?>">
                                             <button class="btn btn-outline-danger btn-sm" type="submit">
