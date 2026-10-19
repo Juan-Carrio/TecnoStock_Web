@@ -122,9 +122,9 @@
                     <div class="card-body">
                         <h3 class="card-title">Accesos rapidos</h3>
                         <div class="d-grid gap-2">
-                            <button class="btn btn-primary" href="#">Ver inventario</button>
-                            <button class="btn btn-primary" href="#">Nuevo producto</button>
-                            <button class="btn btn-primary" href="#">Gestionar Stock</button>
+                            <a class="btn btn-primary" href="inventario.php">Ver inventario</a>
+                            <a class="btn btn-primary" href="agregar_producto.php">Nuevo producto</a>
+                            <a class="btn btn-primary" href="configuracion.php">Gestionar Stock</a>
                         </div>
                         
                     </div>

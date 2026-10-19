@@ -1,4 +1,21 @@
+<?php
+    require_once("config/conexion.php");
+    $resultado = $db->query("SELECT `producto_id`, `nombre`,`ventas_mes`,`plazo_reposicion` FROM `productos`");
+    $id = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT);
+    $productoElegido = null;
 
+    if($id != false && $id !== null && $id > 0){
+        $busqueda = $db->prepare("SELECT `ventas_mes`,`plazo_reposicion` FROM productos WHERE producto_id = ?");
+        $busqueda->bind_param("i",$id);
+        $busqueda->execute();
+        $resultadoBusqueda = $busqueda->get_result();
+
+        $productoElegido = $resultadoBusqueda->fetch_assoc();
+    }else{
+        
+    }
+
+?>
 <!doctype html>
 <html lang="es">
 <head>
@@ -29,20 +46,27 @@
                         <form>
                             <div class="mb-3">
                                 <label for="Producto" class="form-label">Producto</label>
-                                <select class="form-select" id="Producto">
-                                    <option value="1">Producto 1</option>
-                                    <option value="2">Producto 2</option>
-                                    <option value="3">Producto 3</option>
-                                </select>
+                                <form action="configuracion.php" method="get">
+                                    <select class="form-select" id="Producto" name="id">
+                                        <?php while($producto = $resultado->fetch_assoc()){ ?>
+                                            <option value="<?= $producto["producto_id"] ?>"
+                                                <?= $id === (int)$producto["producto_id"] ? "selected" : "" ?>>
+                                                <?= htmlspecialchars($producto["nombre"], ENT_QUOTES, "UTF-8") ?>
+                                            </option>
+                                        <?php } ?>
+                                    </select>
+                                    <button type="submit" class="btn btn-primary mt-2">Seleccionar</button>
+                                </form>
+                                
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="ventas_mes" class="col-form-label">Ventas mensuales</label>
-                                    <input type="number" min="0" step="1" id="ventas_mes" class="form-control">
+                                    <input type="number" value="<?= htmlspecialchars($productoElegido["ventas_mes"] ?? "", ENT_QUOTES, "UTF-8") ?>" min="0" step="1" id="ventas_mes" class="form-control">
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="plazo_reposicion" class="col-form-label">Plazo reposición (Días)</label>
-                                    <input type="number" min="0" step="1" id="plazo_reposicion" class="form-control">
+                                    <input type="number" min="0" value="<?= htmlspecialchars($productoElegido["plazo_reposicion"] ?? "", ENT_QUOTES, "UTF-8") ?>" step="1" id="plazo_reposicion" class="form-control">
                                 </div>
                             </div>
                         </form>
