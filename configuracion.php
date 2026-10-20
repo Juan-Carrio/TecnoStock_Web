@@ -11,6 +11,20 @@
         $resultadoBusqueda = $busqueda->get_result();
 
         $productoElegido = $resultadoBusqueda->fetch_assoc();
+
+        if($_SERVER["REQUEST_METHOD"] == "POST"){
+            $plazo = filter_input(INPUT_POST,"plazo_reposicion",FILTER_VALIDATE_INT);
+            $ventas = filter_input(INPUT_POST,"ventas_mes",FILTER_VALIDATE_INT);
+            if ($ventas == false || $ventas <= 0 || $plazo == false || $plazo < 0){
+                die("Numeros ingresados invalidos");
+            }
+
+            $update = $db->prepare("UPDATE `productos` SET `ventas_mes`= ? ,`plazo_reposicion`= ? WHERE `producto_id` = ? ");
+            $update->bind_param("iii",$ventas,$plazo,$id);
+            $update->execute();
+            header("Location: configuracion.php?estado=editado");
+            exit;
+        }   
     }else{
         
     }
@@ -38,12 +52,12 @@
             </div>
         </div>
 
+    
         <div class="row g-3">
             <div class="col-md-8">
                 <div class="card h-100">
                     <div class="card-body">
                         <h4><i class="bi bi-box me-2"></i>Inventario</h4>
-                        <form>
                             <div class="mb-3">
                                 <label for="Producto" class="form-label">Producto</label>
                                 <form action="configuracion.php" method="get">
@@ -59,21 +73,23 @@
                                 </form>
                                 
                             </div>
+                        <form action="configuracion.php?id=<?= $id ?>" method="post">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="ventas_mes" class="col-form-label">Ventas mensuales</label>
-                                    <input type="number" value="<?= htmlspecialchars($productoElegido["ventas_mes"] ?? "", ENT_QUOTES, "UTF-8") ?>" min="0" step="1" id="ventas_mes" class="form-control">
+                                    <input type="number" value="<?= htmlspecialchars($productoElegido["ventas_mes"] ?? "", ENT_QUOTES, "UTF-8") ?>" min="0" step="1" id="ventas_mes" name="ventas_mes" class="form-control">
                                 </div>
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-6 mb-3">   
                                     <label for="plazo_reposicion" class="col-form-label">Plazo reposición (Días)</label>
-                                    <input type="number" min="0" value="<?= htmlspecialchars($productoElegido["plazo_reposicion"] ?? "", ENT_QUOTES, "UTF-8") ?>" step="1" id="plazo_reposicion" class="form-control">
+                                    <input type="number" min="0" value="<?= htmlspecialchars($productoElegido["plazo_reposicion"] ?? "", ENT_QUOTES, "UTF-8") ?>" step="1" id="plazo_reposicion" name="plazo_reposicion" class="form-control">
                                 </div>
+                                <button type="submit" class="btn btn-success">Enviar Modificacion</button>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
-
+        
             <div class="col-md-4">
                 <div class="card h-100">
                     <div class="card-body">
