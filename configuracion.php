@@ -1,8 +1,51 @@
 <?php
     require_once("config/conexion.php");
     $resultado = $db->query("SELECT `producto_id`, `nombre`,`ventas_mes`,`plazo_reposicion` FROM `productos`");
+    $resultadoMargen = $db->query("SELECT margen_seguridad FROM configuracion WHERE id = 1");
+    $configuracion = $resultadoMargen->fetch_assoc();
+    $margen = $configuracion["margen_seguridad"];
+
     $id = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT);
     $productoElegido = null;
+
+    
+
+    if($_SERVER["REQUEST_METHOD"] == "POST"){
+        
+        if(isset($_POST["guardar_margen"])){
+
+            $margen = filter_input(INPUT_POST, "margen_seguridad",FILTER_VALIDATE_INT);
+            if($margen === false || $margen === null || $margen < 0){
+                die("Numero ingresado invalido");
+            }
+            $update = $db->prepare("UPDATE `configuracion` SET `margen_seguridad` = ? WHERE `id` = 1");
+            $update->bind_param("i",$margen);
+            $update->execute();
+            header("Location: configuracion.php?estado=margen_editado");
+            exit;
+
+
+        }else{
+            if($id === false || $id === null || $id <= 0){
+                die("Producto inválido");
+            }
+
+            $plazo = filter_input(INPUT_POST, "plazo_reposicion", FILTER_VALIDATE_INT);
+            $ventas = filter_input(INPUT_POST, "ventas_mes", FILTER_VALIDATE_INT);
+
+            if($ventas === false || $ventas === null || $ventas < 0 ||
+            $plazo === false || $plazo === null || $plazo < 0){
+                die("Números ingresados inválidos");
+            }
+        }
+
+        $update = $db->prepare("UPDATE `productos` SET `ventas_mes`= ? ,`plazo_reposicion`= ? WHERE `producto_id` = ? ");
+        $update->bind_param("iii",$ventas,$plazo,$id);
+        $update->execute();
+        header("Location: configuracion.php?id=" . $id . "&estado=editado");
+        exit;
+    
+    }
 
     if($id != false && $id !== null && $id > 0){
         $busqueda = $db->prepare("SELECT `ventas_mes`,`plazo_reposicion` FROM productos WHERE producto_id = ?");
@@ -10,24 +53,9 @@
         $busqueda->execute();
         $resultadoBusqueda = $busqueda->get_result();
 
-        $productoElegido = $resultadoBusqueda->fetch_assoc();
-
-        if($_SERVER["REQUEST_METHOD"] == "POST"){
-            $plazo = filter_input(INPUT_POST,"plazo_reposicion",FILTER_VALIDATE_INT);
-            $ventas = filter_input(INPUT_POST,"ventas_mes",FILTER_VALIDATE_INT);
-            if ($ventas == false || $ventas <= 0 || $plazo == false || $plazo < 0){
-                die("Numeros ingresados invalidos");
-            }
-
-            $update = $db->prepare("UPDATE `productos` SET `ventas_mes`= ? ,`plazo_reposicion`= ? WHERE `producto_id` = ? ");
-            $update->bind_param("iii",$ventas,$plazo,$id);
-            $update->execute();
-            header("Location: configuracion.php?estado=editado");
-            exit;
-        }   
-    }else{
-        
+        $productoElegido = $resultadoBusqueda->fetch_assoc(); 
     }
+    
 
 ?>
 <!doctype html>
@@ -54,7 +82,7 @@
 
     
         <div class="row g-3">
-            <div class="col-md-8">
+            <div class="col-md-6">
                 <div class="card h-100">
                     <div class="card-body">
                         <h4><i class="bi bi-box me-2"></i>Inventario</h4>
@@ -83,79 +111,96 @@
                                     <label for="plazo_reposicion" class="col-form-label">Plazo reposición (Días)</label>
                                     <input type="number" min="0" value="<?= htmlspecialchars($productoElegido["plazo_reposicion"] ?? "", ENT_QUOTES, "UTF-8") ?>" step="1" id="plazo_reposicion" name="plazo_reposicion" class="form-control">
                                 </div>
-                                <button type="submit" class="btn btn-success">Enviar Modificacion</button>
+                                <button type="submit" class="btn btn-success" <?= $productoElegido === null ? "disabled" : "" ?>> Guardar cambios </button>
+
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
         
-            <div class="col-md-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h4><i class="bi bi-bar-chart me-2"></i>Cálculo de stock bajo</h4>
-                        <div class="mb-3">
-                            <label for="metodo_calculo" class="form-label">Método de cálculo</label>
-                            <select class="form-select" id="metodo_calculo">
-                                <option value="1">Automático (Ventas y plazo de reposición)</option>
-                                <option value="2">x</option>
-                                <option value="3">x</option>
-                            </select>
-                            <label for="margen_seguridad" class="col-form-label">Margen de seguridad (%)</label>
-                            <input type="number" min="0" step="1" id="margen_seguridad" class="form-control">
-                            <div class="alert alert-primary mt-3" role="alert">Stock mínimo = (ventas mensuales / 30) × plazo de reposición × (1 + margen de seguridad / 100)</div>
-                        </div>
+            
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h4>
+                        <i class="bi bi-graph-up-arrow me-2"></i>Control de reposición
+                    </h4>
+                <form action="configuracion.php" method="post">
+                     <div class="mb-3">
+                        <label for="margen_seguridad" class="form-label">
+                            Margen de seguridad (%)
+                        </label>
+                        <input type="number" min="0" step="1" id="margen_seguridad"  name="margen_seguridad" value="<?= $margen  ?>" class="form-control">
+                                                
+                        <button type="submit" class="btn btn-success" name="guardar_margen" >Editar margen de seguridad</button>
                     </div>
-                </div>
-            </div>
-        </div>
+                    
+                </form>
+                   
 
-        <div class="row g-3 mt-1">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-body">
-                        <h4><i class="bi bi-bell"></i> Alertas de stock bajo</h4>
-                        <form>
-                            <div class="row">
-                                <div>
-                                    <label for="dias_anticipacion" class="col-form-label">Notificar con anticipación (días)</label>
-                                    <input type="number" min="0" step="1" id="dias_anticipacion" class="form-control">
-                                </div>
+                    <div class="row g-3 text-center mb-3">
+                        <div class="col-sm-6">
+                            <div class="bg-light rounded p-3 h-100">
+                                <i class="bi bi-speedometer2 fs-3 text-primary"></i>
+                                <p class="text-muted mb-1">Consumo diario estimado</p>
+                                <?php $consumo_diario = ($productoElegido["ventas_mes"] ?? 0) / 30;  ?>
+                                <h3 class="mb-0" id="consumo_diario"><?= $productoElegido !== null ? round($consumo_diario, 2) : "--" ?></h3>
+                                <small class="text-muted">unidades/día</small>
                             </div>
-                        </form>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="bg-light rounded p-3 h-100">
+                                <i class="bi bi-box-seam fs-3 text-primary"></i>
+                                <?php $stock_minimo = ceil($consumo_diario * ($productoElegido["plazo_reposicion"] ?? 0) * (1 + $margen/100)) ;?>
+                                <p class="text-muted mb-1">Stock mínimo</p>
+                                <h3 class="mb-0" id="stock_minimo"><?= $productoElegido !== null ? $stock_minimo : "--" ?></h3>
+                                <small class="text-muted">unidades</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Cuando las existencias sean iguales o inferiores
+                        al stock mínimo, el producto aparecerá en las
+                        alertas del inventario.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 text-center">
+
+            <div class="col-md-4">
+                <div class="bg-light rounded p-3 h-100">
+                    <i class="bi bi-pc-display fs-3 text-primary"></i>
+                    <p class="text-muted mb-1">Aplicación</p>
+                    <strong>TecnoStock Web</strong>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="bg-light rounded p-3 h-100">
+                    <i class="bi bi-code-slash fs-3 text-primary"></i>
+                    <p class="text-muted mb-1">Versión</p>
+                    <strong>0.8</strong>
+                    <div>
+                        <span class="badge bg-warning text-dark">En desarrollo</span>
                     </div>
                 </div>
             </div>
 
             <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h4><i class="bi bi-info-circle"></i> Información del sistema</h4>
-                        <div class="mb-3">
-                            <table class="table table-borderless">
-                                <thead>
-                                    <tr>
-                                        <th>Aplicación</th>
-                                        <th>TecnoStore Web</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Versión</td>
-                                        <td>0.1 (En desarrollo)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Base de Datos</td>
-                                        <td>TecnoStockDB</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                <div class="bg-light rounded p-3 h-100">
+                    <i class="bi bi-database fs-3 text-primary"></i>
+                    <p class="text-muted mb-1">Base de datos</p>
+                    <strong>TecnoStockDB</strong>
                 </div>
             </div>
         </div>
-    </div>
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

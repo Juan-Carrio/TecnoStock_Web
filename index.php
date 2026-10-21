@@ -1,6 +1,27 @@
 <?php
     require_once "config/conexion.php";
-    $resultado = $db->query("SELECT `nombre`,`precio_publico`,`cantidad`, `ventas_mes`, `proveedor`, `plazo_reposicion` FROM `productos`");
+
+
+    $resultado = $db->query("SELECT * FROM productos ORDER BY cantidad ASC");
+
+    $resultadoMargen = $db->query("SELECT margen_seguridad FROM configuracion WHERE id = 1");
+    $configuracion = $resultadoMargen->fetch_assoc();
+    $margen = $configuracion["margen_seguridad"];
+
+    $productos_prioritarios = [];
+
+    while ($producto = $resultado->fetch_assoc()) {
+
+        $consumo_diario = $producto["ventas_mes"] / 30;
+        $stock_minimo = ceil($consumo_diario * $producto["plazo_reposicion"] * (1 + $margen / 100));
+
+        if ($stock_minimo > 0 && $producto["cantidad"] <= $stock_minimo) {
+            $producto["stock_minimo"] = $stock_minimo;
+            $productos_prioritarios[] = $producto;
+        }
+    }
+
+    $stock_bajo = count($productos_prioritarios);
 ?>
 
 <!doctype html>
@@ -11,8 +32,7 @@
 
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
     <title>TecnoStock Web</title>
     
@@ -58,7 +78,7 @@
             <div class="col-md-3">
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="card-title text-center">Total (Publico)</h3>
+                        <h3 class="card-title text-center">Valor de venta</h3>
                         <?php
                             $valor_total = $db->query("SELECT SUM(precio_publico * cantidad) AS valor_total FROM productos");
                             $valor_total = $valor_total->fetch_assoc()["valor_total"];
@@ -71,7 +91,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h3 class="card-title text-center">Stock bajo</h3>
-                        <h4 class="text-center"> X </h4>
+                        <h4 class="text-center"><?= $stock_bajo ?></h4>
                     </div>
                 </div>
             </div>
@@ -80,58 +100,107 @@
 
     <br>
 
+
+<br>
+
     <div class="container">
-        <div class="row">
+        <div class="row g-3">
+
             <div class="col-md-9">
-                <div class="card">
+                <div class="card h-100">
                     <div class="card-body">
-                        <h3 class="card-title">Distribucion del valor</h3>
 
-                            <p class="mb-1">Skate · $2.100.000</p>
-                            <div class="progress mb-3">
-                                <div class="progress-bar bg-danger" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                        <h3 class="card-title mb-3">
+                            Productos que requieren atención
+                        </h3>
+
+                        <?php if ($stock_bajo > 0) { ?>
+
+                            <div class="alert alert-danger" role="alert">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                Hay <?= $stock_bajo ?> producto(s) que necesitan reposición.
                             </div>
 
-                            <p class="mb-1">Nintendo Switch · $1.800.000</p>
-                            <div class="progress mb-3">                                
-                                <div class="progress-bar bg-warning" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+
+                                    <thead>
+                                        <tr>
+                                            <th>Producto</th>
+                                            <th class="text-center">Stock</th>
+                                            <th class="text-center">Punto de Reposicion</th>
+                                            <th class="text-center">Estado</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <?php foreach ($productos_prioritarios as $producto) { ?>
+
+                                            <tr>
+                                                <td>
+                                                    <?= htmlspecialchars($producto["nombre"], ENT_QUOTES, "UTF-8") ?>
+                                                </td>
+
+                                                <td class="text-center">
+                                                    <?= $producto["cantidad"] ?>
+                                                </td>
+
+                                                <td class="text-center">
+                                                    <?= $producto["stock_minimo"] ?>
+                                                </td>
+
+                                                <td class="text-center">
+                                                    <a href="inventario.php" class="btn btn-sm btn-outline-danger">Reponer</a>  
+                                                </td>
+                                            </tr>
+
+                                        <?php } ?>
+                                    </tbody>
+
+                                </table>
                             </div>
 
-                            <p class="mb-1">Teclado · $1.050.000</p>
-                            <div class="progress mb-3">
-                                <div class="progress-bar bg-info" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                        <?php } else { ?>
+
+                            <div class="alert alert-success mb-0" role="alert">
+                                <i class="bi bi-check-circle-fill me-2"></i>
+                                No hay productos pendientes de reposición.
                             </div>
 
-                            <p class="mb-1">Mouse · $1.008.000</p>
-                            <div class="progress mb-3">
-                                <div class="progress-bar bg-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
+                        <?php } ?>
 
-                            <p class="mb-1">Monitor · $720.000</p>
-                            <div class="progress mb-3">
-                                <div class="progress-bar bg-primary" role="progressbar" style="width: 12%" aria-valuenow="12" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
                     </div>
                 </div>
             </div>
-        
 
-    
+            <!-- Accesos rápidos -->
             <div class="col-md-3">
-                <div class="card">
+                <div class="card h-100">
                     <div class="card-body">
-                        <h3 class="card-title">Accesos rapidos</h3>
+
+                        <h3 class="card-title mb-3">
+                            Accesos rápidos
+                        </h3>
+
                         <div class="d-grid gap-2">
-                            <a class="btn btn-primary" href="inventario.php">Ver inventario</a>
-                            <a class="btn btn-primary" href="agregar_producto.php">Nuevo producto</a>
-                            <a class="btn btn-primary" href="configuracion.php">Gestionar Stock</a>
+                            <a class="btn btn-primary" href="inventario.php">
+                                Ver inventario
+                            </a>
+
+                            <a class="btn btn-primary" href="agregar_producto.php">
+                                Nuevo producto
+                            </a>
+
+                            <a class="btn btn-primary" href="configuracion.php">
+                                Gestionar Stock
+                            </a>
                         </div>
-                        
+
                     </div>
                 </div>
             </div>
-        </div>
 
+        </div>
     </div>
 
 
