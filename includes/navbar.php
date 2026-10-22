@@ -1,4 +1,4 @@
- <nav class="navbar navbar-expand-lg navbar-light bg-light">
+ <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="index.php">TecnoStore</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,7 +18,7 @@
             </ul>
             <form class="d-flex" action="inventario.php" method="get">
                 <div class="input-group">
-                    <span class="input-group-text bg-white border-end-0">
+                    <span class="input-group-text border-end-0">
                         <i class="bi bi-search text-muted"></i>
                     </span>
                     <input class="form-control border-start-0 ps-0" type="search" placeholder="Buscar producto" aria-label="Nombre Producto" name="buscar">

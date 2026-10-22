@@ -52,6 +52,7 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
 
     <title>Agregar Producto</title>
   </head>
@@ -94,7 +95,7 @@
                     <input type="number" name="plazo_reposicion" required min="0" step="1" class="form-control" id="plazo_reposicion" placeholder="Días">
                   </div>
                   <div class="d-flex justify-content-end">
-                    <button type="submit" class="btn btn-success">Agregar producto</button>
+                    <button type="submit" class="btn btn-tecnostock">Agregar producto</button>
                   </div> 
                   
                   <?php  if(isset($_SESSION["mensaje"])){   ?>

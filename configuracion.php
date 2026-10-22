@@ -66,6 +66,7 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 
     <title>Configuración</title>
 </head>
@@ -97,7 +98,7 @@
                                             </option>
                                         <?php } ?>
                                     </select>
-                                    <button type="submit" class="btn btn-primary mt-2">Seleccionar</button>
+                                    <button type="submit" class="btn btn-tecnostock mt-2">Seleccionar</button>
                                 </form>
                                 
                             </div>
@@ -111,7 +112,7 @@
                                     <label for="plazo_reposicion" class="col-form-label">Plazo reposición (Días)</label>
                                     <input type="number" min="0" value="<?= htmlspecialchars($productoElegido["plazo_reposicion"] ?? "", ENT_QUOTES, "UTF-8") ?>" step="1" id="plazo_reposicion" name="plazo_reposicion" class="form-control">
                                 </div>
-                                <button type="submit" class="btn btn-success" <?= $productoElegido === null ? "disabled" : "" ?>> Guardar cambios </button>
+                                <button type="submit" class="btn btn-tecnostock" <?= $productoElegido === null ? "disabled" : "" ?>> Guardar cambios </button>
 
                             </div>
                         </form>
@@ -133,7 +134,7 @@
                         </label>
                         <input type="number" min="0" step="1" id="margen_seguridad"  name="margen_seguridad" value="<?= $margen  ?>" class="form-control">
                                                 
-                        <button type="submit" class="btn btn-success" name="guardar_margen" >Editar margen de seguridad</button>
+                        <button type="submit" class="btn btn-tecnostock" name="guardar_margen" >Editar margen de seguridad</button>
                     </div>
                     
                 </form>
@@ -141,7 +142,7 @@
 
                     <div class="row g-3 text-center mb-3">
                         <div class="col-sm-6">
-                            <div class="bg-light rounded p-3 h-100">
+                            <div class="bg-dark rounded p-3 h-100">
                                 <i class="bi bi-speedometer2 fs-3 text-primary"></i>
                                 <p class="text-muted mb-1">Consumo diario estimado</p>
                                 <?php $consumo_diario = ($productoElegido["ventas_mes"] ?? 0) / 30;  ?>
@@ -151,7 +152,7 @@
                         </div>
 
                         <div class="col-sm-6">
-                            <div class="bg-light rounded p-3 h-100">
+                            <div class="bg-dark rounded p-3 h-100">
                                 <i class="bi bi-box-seam fs-3 text-primary"></i>
                                 <?php $stock_minimo = ceil($consumo_diario * ($productoElegido["plazo_reposicion"] ?? 0) * (1 + $margen/100)) ;?>
                                 <p class="text-muted mb-1">Stock mínimo</p>
@@ -161,7 +162,7 @@
                         </div>
                     </div>
 
-                    <div class="alert alert-info mb-0">
+                    <div class="alert alert-tecnostock mb-0">
                         <i class="bi bi-info-circle me-2"></i>
                         Cuando las existencias sean iguales o inferiores
                         al stock mínimo, el producto aparecerá en las
@@ -174,7 +175,7 @@
         <div class="row g-3 text-center">
 
             <div class="col-md-4">
-                <div class="bg-light rounded p-3 h-100">
+                <div class="bg-dark rounded p-3 h-100">
                     <i class="bi bi-pc-display fs-3 text-primary"></i>
                     <p class="text-muted mb-1">Aplicación</p>
                     <strong>TecnoStock Web</strong>
@@ -182,7 +183,7 @@
             </div>
 
             <div class="col-md-4">
-                <div class="bg-light rounded p-3 h-100">
+                <div class="bg-dark rounded p-3 h-100">
                     <i class="bi bi-code-slash fs-3 text-primary"></i>
                     <p class="text-muted mb-1">Versión</p>
                     <strong>0.8</strong>
@@ -193,7 +194,7 @@
             </div>
 
             <div class="col-md-4">
-                <div class="bg-light rounded p-3 h-100">
+                <div class="bg-dark rounded p-3 h-100">
                     <i class="bi bi-database fs-3 text-primary"></i>
                     <p class="text-muted mb-1">Base de datos</p>
                     <strong>TecnoStockDB</strong>

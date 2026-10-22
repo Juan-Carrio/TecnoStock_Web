@@ -30,9 +30,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
 
     <title>TecnoStock Web</title>
     
@@ -116,7 +117,7 @@
 
                         <?php if ($stock_bajo > 0) { ?>
 
-                            <div class="alert alert-danger" role="alert">
+                            <div class="alert alert-tecnostock" role="alert">
                                 <i class="bi bi-exclamation-triangle-fill me-2"></i>
                                 Hay <?= $stock_bajo ?> producto(s) que necesitan reposición.
                             </div>
@@ -150,7 +151,7 @@
                                                 </td>
 
                                                 <td class="text-center">
-                                                    <a href="inventario.php" class="btn btn-sm btn-outline-danger">Reponer</a>  
+                                                    <a href="configuracion.php?id=<?= $producto["producto_id"] ?>" class="btn btn-sm btn-outline-danger">Reponer</a>  
                                                 </td>
                                             </tr>
 
@@ -162,8 +163,9 @@
 
                         <?php } else { ?>
 
-                            <div class="alert alert-success mb-0" role="alert">
+                            <div class="alert alert-success mb-0 text-center" role="alert"  >
                                 <i class="bi bi-check-circle-fill me-2"></i>
+                                <br>
                                 No hay productos pendientes de reposición.
                             </div>
 
@@ -173,7 +175,6 @@
                 </div>
             </div>
 
-            <!-- Accesos rápidos -->
             <div class="col-md-3">
                 <div class="card h-100">
                     <div class="card-body">
@@ -183,15 +184,15 @@
                         </h3>
 
                         <div class="d-grid gap-2">
-                            <a class="btn btn-primary" href="inventario.php">
+                            <a class="btn btn-tecnostock" href="inventario.php">
                                 Ver inventario
                             </a>
 
-                            <a class="btn btn-primary" href="agregar_producto.php">
+                            <a class="btn btn-tecnostock" href="agregar_producto.php">
                                 Nuevo producto
                             </a>
 
-                            <a class="btn btn-primary" href="configuracion.php">
+                            <a class="btn btn-tecnostock" href="configuracion.php">
                                 Gestionar Stock
                             </a>
                         </div>

@@ -63,6 +63,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="css/style.css">
 
     <title>Inventario</title>
 
@@ -76,10 +77,10 @@
             <h1>Inventario</h1>
 
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <a href="agregar_producto.php" class="btn btn-secondary">
+                <a href="agregar_producto.php" class="btn btn-tecnostock">
                 Agregar Producto
                 </a>
-                <a href="inventario.php" class="btn btn-secondary">
+                <a href="inventario.php" class="btn btn-tecnostock">
                     Recargar
                 </a>
             </div>
@@ -116,7 +117,7 @@
                     </thead>
                     <tbody>
                             <?php foreach ($productos as $producto) { ?>
-                            <tr class="<?= $producto["stock_bajo"] ? "table-danger" : "" ?>">       
+                            <tr class="<?= $producto["stock_bajo"] ? "table-tecnostock" : "" ?>">       
                                 <?php $producto_id = $producto["producto_id"]; ?>
 
                                 <td class="text-center"><?= htmlspecialchars($producto["nombre"], ENT_QUOTES, "UTF-8") ?></td>

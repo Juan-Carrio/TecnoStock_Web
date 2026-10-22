@@ -1,0 +1,111 @@
+
+:root {
+    --fondo: #0E0D16;
+    --tarjetas: #1B1928;
+    --violeta: #9667F5;
+    --azulado: #330ce4;
+    --rojizo: #60283F;
+    --violeta-brillante: #B89AFF;
+    --rosa: #c400a3;
+    --texto: #F1EEFA;
+    --violetaform: #292538;
+}
+
+body {
+    background-color: var(--fondo);
+    color: var(--texto);
+}
+
+.card {
+    background-color: var(--tarjetas);
+    border: 1px solid var(--violeta);
+    box-shadow: 0px 0px 15px var(--violeta-brillante);
+}
+
+.navbar {
+    background-color: var(--tarjetas);
+    border-bottom: 2px solid var(--rosa);
+    box-shadow: 0px 0px 15px var(--rosa);
+}
+
+.navbar .nav-link {
+    color: var(--texto);
+}
+
+.navbar .nav-link:hover {
+    background-color: var(--tarjetas);
+    color: var(--violeta-brillante);
+    box-shadow: 0px 0px 15px var(--violeta);
+    border-radius: 8px;
+    border-bottom: 1px solid var(--rosa);
+}
+
+.table {
+    background-color: var(--tarjetas);
+    color: var(--texto);
+}
+
+.table tbody tr:hover {
+    --bs-table-hover-bg: rgba(150, 103, 245, 0.18);
+    color: var(--texto);
+}
+
+.btn-tecnostock {
+    background-color: var(--violeta);
+    color: var(--texto);
+    box-shadow: 0px 0px 15px var(--violeta);
+    border-radius: 8px;
+}
+
+.table .table-tecnostock td {
+    background-color: var(--rojizo);
+    color: var(--texto);
+}
+
+.alert.alert-tecnostock {
+    background-color: var(--rojizo);
+    color: var(--texto);
+}
+
+.form-control {
+    background-color: var(--violetaform);
+    color: var(--texto);
+    border-color: var(--rosa);
+}
+
+.form-control:focus {
+    background-color: var(--violetaform);
+    color: var(--texto);
+    border-color: var(--rosa);
+    box-shadow: 0 0 12px var(--violeta);
+}
+
+.form-select {
+    background-color: var(--violetaform);
+    color: var(--texto);
+    border-color: var(--rosa);
+}
+
+.form-select:focus {
+    background-color: var(--violetaform);
+    color: var(--texto);
+    border-color: var(--rosa);
+    box-shadow: 0 0 12px var(--rosa);
+}
+
+.input-group-text {
+    background-color: var(--violetaform);
+    border-color: var(--rosa);
+    color: var(--violeta-brillante);
+}
+
+.btn-outline-success {
+    color: var(--violeta-brillante);
+    border-color: var(--violeta);
+}
+
+.btn-outline-success:hover {
+    background-color: var(--violeta);
+    color: var(--texto);
+    border-color: var(--violeta);
+}
