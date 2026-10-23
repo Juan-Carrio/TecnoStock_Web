@@ -1,19 +1,16 @@
 <?php
     require_once "config/conexion.php";
+    require_once "funciones/productos.php";
 
+    $resultado = obtener_productos_por_stock($db);
 
-    $resultado = $db->query("SELECT * FROM productos ORDER BY cantidad ASC");
-
-    $resultadoMargen = $db->query("SELECT margen_seguridad FROM configuracion WHERE id = 1");
-    $configuracion = $resultadoMargen->fetch_assoc();
-    $margen = $configuracion["margen_seguridad"];
+    $margen = margen_seguridad($db);
 
     $productos_prioritarios = [];
 
     while ($producto = $resultado->fetch_assoc()) {
 
-        $consumo_diario = $producto["ventas_mes"] / 30;
-        $stock_minimo = ceil($consumo_diario * $producto["plazo_reposicion"] * (1 + $margen / 100));
+        $stock_minimo = calcular_stock_minimo($producto["ventas_mes"], $producto["plazo_reposicion"], $margen);
 
         if ($stock_minimo > 0 && $producto["cantidad"] <= $stock_minimo) {
             $producto["stock_minimo"] = $stock_minimo;
@@ -56,8 +53,7 @@
                     <div class="card-body">
                         <h3 class="card-title text-center">Productos</h3>
                         <?php
-                            $productos = $db->query("SELECT COUNT(*) FROM productos");
-                            $productos = $productos->fetch_assoc()["COUNT(*)"];
+                            $productos = contarProductos($db);
                         ?>
                         <h4 class="text-center"> <?php echo $productos; ?> </h4>
                     </div>
@@ -68,8 +64,7 @@
                     <div class="card-body ">
                         <h3 class="card-title text-center">Unidades</h3>
                         <?php 
-                            $unidades = $db->query("SELECT SUM(cantidad) AS total_unidades FROM productos");
-                            $unidades = $unidades->fetch_assoc()["total_unidades"];
+                            $unidades = total_unidades($db);
                         ?>
                         <h4 class="text-center"> <?php echo $unidades; ?> </h4>
                     </div>
@@ -81,10 +76,9 @@
                     <div class="card-body">
                         <h3 class="card-title text-center">Valor de venta</h3>
                         <?php
-                            $valor_total = $db->query("SELECT SUM(precio_publico * cantidad) AS valor_total FROM productos");
-                            $valor_total = $valor_total->fetch_assoc()["valor_total"];
+                            $valor_total = valor_inventario($db);
                         ?>
-                        <h4 class="text-center"> $ <?php echo number_format($valor_total, 0, ",", "."); ?> </h4>
+                        <h4 class="text-center">$<?= mostrar_precio($valor_total) ?></h4>
                     </div>
                 </div>
             </div>
@@ -139,7 +133,7 @@
 
                                             <tr>
                                                 <td>
-                                                    <?= htmlspecialchars($producto["nombre"], ENT_QUOTES, "UTF-8") ?>
+                                                    <?= mostrar($producto["nombre"]) ?>
                                                 </td>
 
                                                 <td class="text-center">

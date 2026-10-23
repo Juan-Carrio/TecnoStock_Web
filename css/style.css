@@ -77,7 +77,7 @@ body {
     background-color: var(--violetaform);
     color: var(--texto);
     border-color: var(--rosa);
-    box-shadow: 0 0 12px var(--violeta);
+    box-shadow: 0 0 12px var(--rosa);
 }
 
 .form-select {
@@ -96,7 +96,7 @@ body {
 .input-group-text {
     background-color: var(--violetaform);
     border-color: var(--rosa);
-    color: var(--violeta-brillante);
+    color: var(--rosa);
 }
 
 .btn-outline-success {

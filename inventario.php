@@ -1,37 +1,34 @@
 <?php
     include_once("config/conexion.php");
-    $buscar = trim($_GET["buscar"] ?? "");
-    $cant = 0;
+    require_once "funciones/productos.php";
 
-    $resultadoMargen = $db->query("SELECT margen_seguridad FROM configuracion WHERE id = 1");
-    $configuracion = $resultadoMargen->fetch_assoc();
-    $margen = $configuracion["margen_seguridad"];
+
+    $buscar = trim($_GET["buscar"] ?? "");
+
+    $margen = margen_seguridad($db);
 
 
     if ($buscar !== "") {
-        $consulta = $db->prepare("SELECT * FROM productos WHERE nombre LIKE ?");
-        $textoBusqueda = "%" . $buscar . "%";
-        $consulta->bind_param("s", $textoBusqueda);
-        $consulta->execute();
-        $resultado = $consulta->get_result();
-        $cant = $resultado->num_rows;
+        $resultado = buscar_producto($db, $buscar);
     } else {
-        $resultado = $db->query("SELECT * FROM productos ORDER BY cantidad ASC");
-        $cant = $resultado->num_rows;
+        $resultado = obtener_productos_por_stock($db);
     }
+
+    $cant = $resultado->num_rows;
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $producto_id = filter_input(INPUT_POST, "producto_id", FILTER_VALIDATE_INT);
 
         if ($producto_id === false || $producto_id === null || $producto_id <= 0) {
             die("ID inválido");
-        } else {
-            $eliminar = $db->prepare("DELETE FROM productos WHERE producto_id = ?");
-            $eliminar->bind_param("i", $producto_id);
-            $eliminar->execute();
 
-            header("Location: inventario.php");
-            exit;
+        } else {
+            if (eliminar_producto($db, $producto_id)) {
+                header("Location: inventario.php");
+                exit;
+            }
+
+            die("No se pudo eliminar el producto");
         }
     }
         
@@ -39,8 +36,8 @@
     $productos_normales = [];
 
     while ($producto = $resultado->fetch_assoc()) {
-        $consumo_diario = $producto["ventas_mes"] / 30;
-        $stock_minimo = ceil($consumo_diario * $producto["plazo_reposicion"] * (1 + $margen / 100));
+
+        $stock_minimo = calcular_stock_minimo($producto["ventas_mes"], $producto["plazo_reposicion"], $margen);
         $producto["stock_minimo"] = $stock_minimo;
 
         if ($stock_minimo > 0 && $producto["cantidad"] <= $stock_minimo) {
@@ -120,14 +117,14 @@
                             <tr class="<?= $producto["stock_bajo"] ? "table-tecnostock" : "" ?>">       
                                 <?php $producto_id = $producto["producto_id"]; ?>
 
-                                <td class="text-center"><?= htmlspecialchars($producto["nombre"], ENT_QUOTES, "UTF-8") ?></td>
-                                <td class="text-center">$<?php echo number_format($producto["precio_publico"], 0, ",", "."); ?></td>
-                                <td class="text-center">$<?php echo number_format($producto["costo"], 0, ",", "."); ?></td>
-                                <td class="text-center"><?php echo $producto["cantidad"]; ?></td>
-                                <td class="text-center"><?= $producto["stock_minimo"] ?></td>
-                                <td class="text-center"><?php echo $producto["ventas_mes"]; ?></td>
-                                <td class="text-center"><?= htmlspecialchars($producto["proveedor"], ENT_QUOTES, "UTF-8") ?></td>
-                                <td class="text-center"><?php echo $producto["plazo_reposicion"]; ?></td>
+                                <td class="text-center"><?= mostrar($producto["nombre"]); ?></td>
+                                <td class="text-center">$<?= mostrar_precio($producto["precio_publico"]); ?></td>
+                                <td class="text-center">$<?= mostrar_precio($producto["costo"]);?></td>
+                                <td class="text-center"><?= mostrar($producto["cantidad"]); ?></td>
+                                <td class="text-center"><?=mostrar($producto["stock_minimo"]);?></td>
+                                <td class="text-center"><?=mostrar($producto["ventas_mes"]);?></td>
+                                <td class="text-center"><?=mostrar($producto["proveedor"]);?></td>
+                                <td class="text-center"><?=mostrar($producto["plazo_reposicion"]);?></td>
                                 <td>
                                     <div  class="d-flex justify-content-center gap-2">
                                         <form action="editar_producto.php" method="get">

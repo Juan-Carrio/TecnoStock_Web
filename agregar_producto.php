@@ -1,6 +1,8 @@
 <?php
   session_start();
   require_once "config/conexion.php";
+  require_once "funciones/productos.php";
+
   if($_SERVER["REQUEST_METHOD"] == "POST"){
     $nombre = trim($_POST["nombre_prod"] ?? "");
     $precio = filter_input(INPUT_POST, "precio_prod", FILTER_VALIDATE_FLOAT);
@@ -24,19 +26,11 @@
         die("El nombre y el proveedor son obligatorios");
     }
 
-    $resultado = $db->prepare("INSERT INTO `productos`(`nombre`, `cantidad`, `precio_publico`, `costo`, `ventas_mes`, `proveedor`, `plazo_reposicion`)
-      VALUES (?,?,?,?,?,?,?)");
-    $resultado->bind_param("siddisi", $nombre, $cantidad, $precio, $costo, $ventas, $proveedor, $plazo);
-    //TODO: mas adelante voy a incorporar una funcion para validar que el producto no exista antes de guardarlo.
-    //para evitar registros duplicados
-
-    //s string d decimal i intdi
-    //bind_param asocia los parametros y prepare prepara la ejecucion sql
-
-    if ($resultado->execute()) {
+    if (agregar_producto($db, $nombre, $cantidad, $precio, $costo, $ventas, $proveedor, $plazo)) {
       $_SESSION["mensaje"] = "¡Producto agregado correctamente!";
       header("Location: agregar_producto.php");
       exit;
+      
     } else {
       die("No se pudo guardar el producto");
     }

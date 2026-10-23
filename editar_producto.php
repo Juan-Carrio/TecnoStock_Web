@@ -1,6 +1,7 @@
 <?php
     require_once("config/conexion.php");
-    $cant = 0;
+    require_once "funciones/productos.php";
+
     
     if(isset($_GET["id"])) {
       $id = filter_input(INPUT_GET,"id", FILTER_VALIDATE_INT);
@@ -8,11 +9,8 @@
       if($id === false || $id === null || $id <= 0) {
         die("ID INVALIDO");
       }else{
-        $consulta = $db->prepare("SELECT * FROM productos WHERE producto_id = ?");
-        $consulta->bind_param("i", $id);
-        $consulta->execute();
-        $resultado = $consulta->get_result();
-        $cant = $resultado->num_rows;
+        $producto = buscarId($db, $id);
+        $cant = $producto !== null ? 1 : 0;
 
             if($_SERVER["REQUEST_METHOD"] == "POST" && $cant > 0){
               $nombre = trim($_POST["nombre_prod"] ?? "");
@@ -37,13 +35,14 @@
                 die("El nombre y el proveedor son obligatorios");
               }
 
-              $update = $db->prepare("UPDATE `productos` SET `nombre` = ?, `cantidad` = ?, `precio_publico` = ?, `costo` = ?, `ventas_mes` = ?, `proveedor` = ?,
-                 `plazo_reposicion` = ? WHERE `producto_id` = ?");
-              $update->bind_param("siddisii", $nombre, $cantidad, $precio, $costo, $ventas, $proveedor, $plazo, $id);
+              $actualizado = actualizarProducto($db, $nombre, $cantidad, $precio, $costo, $ventas, $proveedor, $plazo, $id);
 
+              if ($actualizado) {
+                  header("Location: inventario.php?estado=editado");
+                  exit;
+              }
 
-              $update->execute();
-              header("Location: inventario.php?estado=editado");
+              die("No se pudo actualizar el producto");
               exit;
             }
       }
@@ -80,8 +79,7 @@
             <form method="post">
               <div class="row g-3">    
                   <?php
-                    if($resultado and $cant > 0){ 
-                      $producto = $resultado->fetch_assoc();
+                    if ($producto !== null) {
                   ?>          
                     <div class="col-md-6">
                       <label for="nombre_prod" class="form-label">Nombre</label>

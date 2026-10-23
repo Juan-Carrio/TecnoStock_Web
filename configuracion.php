@@ -1,9 +1,9 @@
 <?php
     require_once("config/conexion.php");
-    $resultado = $db->query("SELECT `producto_id`, `nombre`,`ventas_mes`,`plazo_reposicion` FROM `productos`");
-    $resultadoMargen = $db->query("SELECT margen_seguridad FROM configuracion WHERE id = 1");
-    $configuracion = $resultadoMargen->fetch_assoc();
-    $margen = $configuracion["margen_seguridad"];
+    require_once "funciones/productos.php";
+
+    $margen = margen_seguridad($db);
+    $resultado = ordenar_productos($db);
 
     $id = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT);
     $productoElegido = null;
@@ -25,7 +25,7 @@
             exit;
 
 
-        }else{
+        } elseif (isset($_POST["guardar_producto"])) {
             if($id === false || $id === null || $id <= 0){
                 die("Producto inválido");
             }
@@ -47,13 +47,8 @@
     
     }
 
-    if($id != false && $id !== null && $id > 0){
-        $busqueda = $db->prepare("SELECT `ventas_mes`,`plazo_reposicion` FROM productos WHERE producto_id = ?");
-        $busqueda->bind_param("i",$id);
-        $busqueda->execute();
-        $resultadoBusqueda = $busqueda->get_result();
-
-        $productoElegido = $resultadoBusqueda->fetch_assoc(); 
+    if ($id !== false && $id !== null && $id > 0) {
+        $productoElegido = buscarId($db, $id);
     }
     
 
@@ -94,7 +89,7 @@
                                         <?php while($producto = $resultado->fetch_assoc()){ ?>
                                             <option value="<?= $producto["producto_id"] ?>"
                                                 <?= $id === (int)$producto["producto_id"] ? "selected" : "" ?>>
-                                                <?= htmlspecialchars($producto["nombre"], ENT_QUOTES, "UTF-8") ?>
+                                                <?= mostrar($producto["nombre"]) ?>
                                             </option>
                                         <?php } ?>
                                     </select>
@@ -106,13 +101,13 @@
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="ventas_mes" class="col-form-label">Ventas mensuales</label>
-                                    <input type="number" value="<?= htmlspecialchars($productoElegido["ventas_mes"] ?? "", ENT_QUOTES, "UTF-8") ?>" min="0" step="1" id="ventas_mes" name="ventas_mes" class="form-control">
+                                    <input type="number" value="<?= mostrar($productoElegido["ventas_mes"] ?? "") ?>" min="0" step="1" id="ventas_mes" name="ventas_mes" class="form-control">
                                 </div>
                                 <div class="col-md-6 mb-3">   
                                     <label for="plazo_reposicion" class="col-form-label">Plazo reposición (Días)</label>
-                                    <input type="number" min="0" value="<?= htmlspecialchars($productoElegido["plazo_reposicion"] ?? "", ENT_QUOTES, "UTF-8") ?>" step="1" id="plazo_reposicion" name="plazo_reposicion" class="form-control">
+                                    <input type="number" min="0" value="<?= mostrar($productoElegido["plazo_reposicion"] ?? "") ?>"step="1" id="plazo_reposicion" name="plazo_reposicion" class="form-control">
                                 </div>
-                                <button type="submit" class="btn btn-tecnostock" <?= $productoElegido === null ? "disabled" : "" ?>> Guardar cambios </button>
+                                <button type="submit" name="guardar_producto" class="btn btn-tecnostock" <?= $productoElegido === null ? "disabled" : "" ?>> Guardar cambios </button>
 
                             </div>
                         </form>
@@ -154,7 +149,7 @@
                         <div class="col-sm-6">
                             <div class="bg-dark rounded p-3 h-100">
                                 <i class="bi bi-box-seam fs-3 text-primary"></i>
-                                <?php $stock_minimo = ceil($consumo_diario * ($productoElegido["plazo_reposicion"] ?? 0) * (1 + $margen/100)) ;?>
+                                <?php $stock_minimo = calcular_stock_minimo($productoElegido["ventas_mes"] ?? 0, $productoElegido["plazo_reposicion"] ?? 0, $margen); ?>
                                 <p class="text-muted mb-1">Stock mínimo</p>
                                 <h3 class="mb-0" id="stock_minimo"><?= $productoElegido !== null ? $stock_minimo : "--" ?></h3>
                                 <small class="text-muted">unidades</small>
